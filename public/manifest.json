@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "FillFaster",
+  "version": "2.0.0",
+  "description": "Snapshot web forms and restore them instantly — with URL wildcards, datetime placeholders and AI-generated field values.",
+  "icons": {
+    "16": "images/16.png",
+    "48": "images/48.png",
+    "128": "images/128.png"
+  },
+  "action": {
+    "default_icon": "images/48.png",
+    "default_title": "FillFaster",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*", "file:///*"],
+      "js": ["content-script.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "permissions": ["storage", "tabs", "clipboardRead", "clipboardWrite"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "fillfaster@mathieuf20.github.io",
+      "strict_min_version": "121.0"
+    }
+  }
+}
