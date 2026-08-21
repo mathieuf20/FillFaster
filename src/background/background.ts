@@ -1,13 +1,21 @@
 import browser from 'webextension-polyfill';
-import { getAiConfig } from '../shared/storage';
+import { getAiConfig, type AiConfig } from '../shared/storage';
+import { isLocalEndpoint } from '../shared/ai';
 import { callChatCompletions } from './ai';
 import type { AiFieldItem, AiFillResponse } from '../shared/ai';
 
-const NOT_CONFIGURED = 'AI fill is not configured. Open the FillFaster popup, gear menu -> "AI fill settings..." and set an endpoint and API key.';
+const NOT_CONFIGURED = 'AI fill is not configured. Open the FillFaster popup, gear menu -> "AI fill settings..." and set an endpoint (and API key, unless it is a local endpoint).';
+
+function hasValidConfig(config: AiConfig | null): config is AiConfig {
+  if (!config || !config.model) {
+    return false;
+  }
+  return isLocalEndpoint(config.endpoint) || config.apiKey.length > 0;
+}
 
 async function handleAiFill(items: AiFieldItem[]): Promise<AiFillResponse> {
   const config = await getAiConfig();
-  if (!config || !config.apiKey) {
+  if (!hasValidConfig(config)) {
     return { error: true, message: NOT_CONFIGURED };
   }
 
@@ -27,7 +35,7 @@ async function handleAiFill(items: AiFieldItem[]): Promise<AiFillResponse> {
 
 async function handleAiTest(): Promise<AiFillResponse> {
   const config = await getAiConfig();
-  if (!config || !config.apiKey) {
+  if (!hasValidConfig(config)) {
     return { error: true, message: NOT_CONFIGURED };
   }
   try {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildAiMessages, collectAiRequests, parseAiValue } from '../src/shared/ai';
+import { buildAiMessages, collectAiRequests, isLocalEndpoint, parseAiValue, presetForEndpoint } from '../src/shared/ai';
 import { callChatCompletions, chatCompletionsUrl } from '../src/background/ai';
 import type { AiConfig } from '../src/shared/storage';
 
@@ -92,5 +92,23 @@ describe('callChatCompletions', () => {
   it('throws on empty completions', async () => {
     const fetchImpl = (async () => new Response(JSON.stringify({ choices: [] }), { status: 200 })) as typeof fetch;
     await expect(callChatCompletions(config, { name: 'x', instruction: '' }, fetchImpl)).rejects.toThrow(/empty/);
+  });
+});
+
+
+describe('endpoint presets', () => {
+  it('matches presets with and without trailing slashes', () => {
+    expect(presetForEndpoint('https://api.openai.com/v1')?.id).toBe('openai');
+    expect(presetForEndpoint('https://openrouter.ai/api/v1/')?.id).toBe('openrouter');
+    expect(presetForEndpoint('http://localhost:11434/v1')?.id).toBe('ollama');
+    expect(presetForEndpoint('https://api.openai.com/v1/extra')).toBeNull();
+    expect(presetForEndpoint('')).toBeNull();
+  });
+
+  it('detects local endpoints', () => {
+    expect(isLocalEndpoint('http://localhost:11434/v1')).toBe(true);
+    expect(isLocalEndpoint('http://127.0.0.1:1234/v1')).toBe(true);
+    expect(isLocalEndpoint('https://api.openai.com/v1')).toBe(false);
+    expect(isLocalEndpoint('http://localhost.evil.com/v1')).toBe(false);
   });
 });

@@ -20,14 +20,16 @@ Same storage format: previously saved sets keep working.
   from the current page's URL on restore.
 - **Datetime placeholders** — fields starting with the configured prefix (default
   `@@@DTPH@@@`) are expanded on restore (`%H` `%M` `%S` `%d` `%m` `%y`, `%%` for a literal
-  `%`). The prefix is configurable from the popup; changing it migrates all saved sets.
 - **AI fill** — fields saved with the value `@@@AI@@@` (optionally followed by an
   instruction, e.g. `@@@AI@@@ a Lebanese-sounding name`) are filled on restore by an
   OpenAI-compatible chat completions endpoint. Configure the endpoint, API key, model and
-  an optional default instruction from the popup (gear menu -> *AI fill settings...*).
-  Works with OpenAI, OpenRouter, Groq, Ollama, LM Studio... The field's name, label,
-  placeholder and type are sent as context. The API key is stored in extension storage and
-  only sent to the configured endpoint.
+  an optional default instruction from the popup (gear menu -> *AI fill settings...*);
+  a preset dropdown prefills common providers (OpenAI, OpenRouter, Groq, Mistral,
+  Anthropic, Gemini, DeepSeek, Ollama, LM Studio) and falls back to *Custom* when the URL
+  is edited by hand. Local endpoints (localhost) need no API key. Works with OpenAI,
+  OpenRouter, Groq, Ollama, LM Studio... The field's name, label, placeholder and type are
+  sent as context. The API key is stored in extension storage and only sent to the
+  configured endpoint.
 - **Hotkeys** — bind a mousetrap-style combo per set (`shift+k`, `ctrl+shift+f`, ...);
   pressing it on a matching page fills that set.
 - **Export / import** — copy a set's JSON to the clipboard (Copy button) or paste it back

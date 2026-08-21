@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import browser from 'webextension-polyfill';
 import { DEFAULT_FILTER, fits } from '../shared/matching';
 import { DEFAULT_PREFIX } from '../shared/datetime';
+import { AI_ENDPOINT_PRESETS, isLocalEndpoint, presetForEndpoint } from '../shared/ai';
 import {
   getAiConfig,
   loadAll,
@@ -593,14 +594,17 @@ function AiBlock(props: { onClose: () => void }): React.JSX.Element {
       model: config.model.trim(),
       defaultInstruction: config.defaultInstruction.trim(),
     };
-    if (!trimmed.apiKey) {
-      window.alert('API key is required for AI fill.');
+    if (!trimmed.model) {
+      window.alert('Model is required. Pick a provider preset or type a model id.');
+      return;
+    }
+    if (!isLocalEndpoint(trimmed.endpoint) && !trimmed.apiKey) {
+      window.alert('API key is required (except for local endpoints like Ollama or LM Studio).');
       return;
     }
     await saveAiConfig(trimmed);
     props.onClose();
   };
-
   const test = async (): Promise<void> => {
     if (!config) {
       return;
@@ -638,6 +642,24 @@ function AiBlock(props: { onClose: () => void }): React.JSX.Element {
         <p>Any OpenAI-compatible chat completions endpoint works (OpenAI, OpenRouter, Groq, Ollama, LM Studio...). The API key is stored in extension storage and sent only to the configured endpoint.</p>
       </div>
       <div className="form">
+        <label htmlFor="aiPreset">Provider preset</label>
+        <select
+          id="aiPreset"
+          value={presetForEndpoint(config.endpoint)?.id ?? 'custom'}
+          onChange={(e) => {
+            const preset = AI_ENDPOINT_PRESETS.find((p) => p.id === e.target.value);
+            if (preset) {
+              update({ endpoint: preset.endpoint, model: preset.model });
+            }
+          }}
+        >
+          {AI_ENDPOINT_PRESETS.map((preset) => (
+            <option key={preset.id} value={preset.id}>
+              {preset.label}
+            </option>
+          ))}
+          <option value="custom">Custom...</option>
+        </select>
         <label htmlFor="aiEndpoint">Endpoint (base URL)</label>
         <input id="aiEndpoint" type="text" value={config.endpoint} placeholder="https://api.openai.com/v1" onChange={(e) => update({ endpoint: e.target.value })} />
         <label htmlFor="aiKey">API key</label>

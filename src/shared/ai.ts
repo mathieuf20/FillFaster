@@ -4,6 +4,45 @@ export const AI_PREFIX = '@@@AI@@@';
 export const DEFAULT_AI_ENDPOINT = 'https://api.openai.com/v1';
 export const DEFAULT_AI_MODEL = 'gpt-4o-mini';
 
+export interface AiEndpointPreset {
+  id: string;
+  label: string;
+  endpoint: string;
+  model: string;
+}
+
+/** Common OpenAI-compatible providers shown in the popup settings. */
+export const AI_ENDPOINT_PRESETS: AiEndpointPreset[] = [
+  { id: 'openai', label: 'OpenAI', endpoint: 'https://api.openai.com/v1', model: 'gpt-4o-mini' },
+  { id: 'openrouter', label: 'OpenRouter', endpoint: 'https://openrouter.ai/api/v1', model: 'openai/gpt-4o-mini' },
+  { id: 'groq', label: 'Groq', endpoint: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile' },
+  { id: 'mistral', label: 'Mistral', endpoint: 'https://api.mistral.ai/v1', model: 'mistral-small-latest' },
+  {
+    id: 'anthropic',
+    label: 'Anthropic (OpenAI-compatible)',
+    endpoint: 'https://api.anthropic.com/v1',
+    model: 'claude-sonnet-4-20250514',
+  },
+  {
+    id: 'gemini',
+    label: 'Google Gemini (OpenAI-compatible)',
+    endpoint: 'https://generativelanguage.googleapis.com/v1beta/openai',
+    model: 'gemini-2.0-flash',
+  },
+  { id: 'deepseek', label: 'DeepSeek', endpoint: 'https://api.deepseek.com', model: 'deepseek-chat' },
+  { id: 'ollama', label: 'Ollama (local)', endpoint: 'http://localhost:11434/v1', model: 'llama3.2' },
+  { id: 'lmstudio', label: 'LM Studio (local)', endpoint: 'http://localhost:1234/v1', model: '' },
+];
+
+/** The preset matching an endpoint exactly, or null. */
+export function presetForEndpoint(endpoint: string): AiEndpointPreset | null {
+  const trimmed = endpoint.trim().replace(/\/+$/, '');
+  return AI_ENDPOINT_PRESETS.find((preset) => preset.endpoint === trimmed) ?? null;
+}
+
+export function isLocalEndpoint(endpoint: string): boolean {
+  return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/.*)?$/.test(endpoint.trim());
+}
 export interface AiFieldRequest {
   /** Form field key (id or name). */
   name: string;
